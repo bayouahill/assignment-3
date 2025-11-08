@@ -26,7 +26,7 @@ const knex = require("knex")({
         host : process.env.DB_HOST || "localhost",
         user : process.env.DB_USER || "postgres",
         password : process.env.DB_PASSWORD || "admin",
-        database : process.env.DB_NAME || "foodisus",
+        database : process.env.DB_NAME || "assignment 3",
         port : process.env.DB_PORT || 5432  // PostgreSQL 16 typically uses port 5434
     }
 });
@@ -43,17 +43,17 @@ app.get("/test", (req, res) => {
     res.render("test", {name : "BYU"});
 });
 
-app.get("/users", (req, res) => {
-    knex.select().from("users")
-        .then(users => {
-            console.log(`Successfully retrieved ${users.length} users from database`);
-            res.render("displayUsers", {users: users});
+app.get("/pokemon", (req, res) => {
+    knex.select().from("pokemon")
+        .then(pokemon => {
+            console.log(`Successfully retrieved ${pokemon.length} pokemon from database`);
+            res.render("displayPokemon", {pokemon: pokemon});
         })
         .catch((err) => {
             console.error("Database query error:", err.message);
-            res.render("displayUsers", {
-                users: [],
-                error_message: `Database error: ${err.message}. Please check if the 'users' table exists.`
+            res.render("displayPokemon", {
+                pokemon: [],
+                error_message: `Database error: ${err.message}. Please check if the 'pokemon' table exists.`
             });
         });
 });
