@@ -34,9 +34,20 @@ const knex = require("knex")({
 // Tells Express how to read form data sent in the body of a request
 app.use(express.urlencoded({extended: true}));
 
-// Main page route
+// Main page route - displays all users from database
 app.get("/", (req, res) => {
-    res.render("index");
+    knex.select().from("users")
+        .then(users => {
+            console.log(`Successfully retrieved ${users.length} users from database`);
+            res.render("displayUsers", {users: users});
+        })
+        .catch((err) => {
+            console.error("Database query error:", err.message);
+            res.render("displayUsers", {
+                users: [],
+                error_message: `Database error: ${err.message}. Please check if the 'users' table exists.`
+            });
+        });
 });
 
 app.get("/test", (req, res) => {
