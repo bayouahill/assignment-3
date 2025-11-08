@@ -26,15 +26,15 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Username</th>
-                            <th>Password</th>
+                            <th>Name</th>
+                            <th>base_total</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% for (let iCount = 0; iCount < pokemon.length; iCount++) { %>
                             <tr>
-                                <td><%= pokemon[iCount].username %></td>
-                                <td><%= pokemon[iCount].password %></td>
+                                <td><%= pokemon[iCount].name %></td>
+                                <td><%= pokemon[iCount].base_total %></td>
                             </tr>
                         <% } %>
                     </tbody>
