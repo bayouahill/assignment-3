@@ -11,7 +11,30 @@
     <body>
         <div class="container mt-5">
             <h1 class="mb-4">Pokemon List</h1>
-            
+
+            <!-- Search Form -->
+            <form method="GET" action="/" class="mb-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <input type="text" name="search" class="form-control"
+                               placeholder="Search by Pokemon name..."
+                               value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        <% if (typeof searchTerm !== 'undefined' && searchTerm) { %>
+                            <a href="/" class="btn btn-secondary">Clear</a>
+                        <% } %>
+                    </div>
+                </div>
+            </form>
+
+            <% if (typeof searchTerm !== 'undefined' && searchTerm) { %>
+                <div class="alert alert-info" role="alert">
+                    Showing results for: <strong><%= searchTerm %></strong>
+                </div>
+            <% } %>
+
             <% if (typeof error_message !== 'undefined' && error_message) { %>
                 <div class="alert alert-danger" role="alert">
                     <%= error_message %>
@@ -42,8 +65,6 @@
                     </tbody>
                 </table>
             <% } %>
-            
-            <a href="/" class="btn btn-primary mt-3">Back to Dashboard</a>
         </div>
     </body>
 </html>   
