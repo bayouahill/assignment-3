@@ -34,17 +34,28 @@ const knex = require("knex")({
 // Tells Express how to read form data sent in the body of a request
 app.use(express.urlencoded({extended: true}));
 
-// Main page route - displays all pokemon
+// Main page route - displays all pokemon with optional search
 app.get("/", (req, res) => {
-    knex.select().from("pokemon")
-        .then(pokemon => {
+    const searchTerm = req.query.search;
+    let query = knex.select().from("pokemon");
+
+    // Add search filter if search term is provided
+    if (searchTerm) {
+        query = query.where('description', 'ilike', `%${searchTerm}%`);
+    }
+
+    query.then(pokemon => {
             console.log(`Successfully retrieved ${pokemon.length} pokemon from database`);
-            res.render("displayPokemon", {pokemon: pokemon});
+            res.render("displayPokemon", {
+                pokemon: pokemon,
+                searchTerm: searchTerm || ''
+            });
         })
         .catch((err) => {
             console.error("Database query error:", err.message);
             res.render("displayPokemon", {
                 pokemon: [],
+                searchTerm: searchTerm || '',
                 error_message: `Database error: ${err.message}. Please check if the 'pokemon' table exists.`
             });
         });
