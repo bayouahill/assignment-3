@@ -34,16 +34,8 @@ const knex = require("knex")({
 // Tells Express how to read form data sent in the body of a request
 app.use(express.urlencoded({extended: true}));
 
-// Main page route
+// Main page route - displays all pokemon
 app.get("/", (req, res) => {
-    res.render("index");
-});
-
-app.get("/test", (req, res) => {
-    res.render("test", {name : "BYU"});
-});
-
-app.get("/pokemon", (req, res) => {
     knex.select().from("pokemon")
         .then(pokemon => {
             console.log(`Successfully retrieved ${pokemon.length} pokemon from database`);
