@@ -26,14 +26,16 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Name</th>
+                            <th>id</th>
+                            <th>description</th>
                             <th>base_total</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% for (let iCount = 0; iCount < pokemon.length; iCount++) { %>
                             <tr>
-                                <td><%= pokemon[iCount].name %></td>
+                                <td><%= pokemon[iCount].id %></td>
+                                <td><%= pokemon[iCount].description %></td>
                                 <td><%= pokemon[iCount].base_total %></td>
                             </tr>
                         <% } %>
@@ -42,7 +44,6 @@
             <% } %>
             
             <a href="/" class="btn btn-primary mt-3">Back to Dashboard</a>
-            <a href="/logout" class="btn btn-secondary mt-3">Logout</a>
         </div>
     </body>
 </html>   
