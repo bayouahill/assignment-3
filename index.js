@@ -27,7 +27,7 @@ const knex = require("knex")({
         user : process.env.DB_USER || "postgres",
         password : process.env.DB_PASSWORD || "admin",
         database : process.env.DB_NAME || "assignment 3",
-        port : process.env.DB_PORT || 5432  // PostgreSQL 16 typically uses port 5434
+        port : process.env.DB_PORT || 5432  
     }
 });
 
