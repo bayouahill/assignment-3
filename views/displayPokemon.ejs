@@ -42,26 +42,16 @@
             <h1 class="mb-4">Pokemon List</h1>
 
             <!-- Search Form -->
-            <form method="GET" action="/" class="mb-4">
+            <form method="POST" action="/searchPokemon" class="mb-4">
                 <div class="row">
                     <div class="col-md-9"></div>
                     <div class="col-md-3">
-                        <input type="text" name="search" class="form-control mb-2"
-                               placeholder="Search by name..."
-                               value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>">
+                        <input type="text" name="pokemonName" class="form-control mb-2"
+                               placeholder="Search by name..." required>
                         <button type="submit" class="btn btn-primary w-100 mb-2">Search</button>
-                        <% if (typeof searchTerm !== 'undefined' && searchTerm) { %>
-                            <a href="/" class="btn btn-secondary w-100">Clear</a>
-                        <% } %>
                     </div>
                 </div>
             </form>
-
-            <% if (typeof searchTerm !== 'undefined' && searchTerm) { %>
-                <div class="alert alert-info" role="alert">
-                    Showing results for: <strong><%= searchTerm %></strong>
-                </div>
-            <% } %>
 
             <% if (typeof error_message !== 'undefined' && error_message) { %>
                 <div class="alert alert-danger" role="alert">

@@ -34,29 +34,45 @@ const knex = require("knex")({
 // Tells Express how to read form data sent in the body of a request
 app.use(express.urlencoded({extended: true}));
 
-// Main page route - displays all pokemon with optional search
+// Main page route - displays all pokemon ordered by name
 app.get("/", (req, res) => {
-    const searchTerm = req.query.search;
-    let query = knex.select().from("pokemon");
-
-    // Add search filter if search term is provided
-    if (searchTerm) {
-        query = query.where('description', 'ilike', `%${searchTerm}%`);
-    }
-
-    query.then(pokemon => {
+    knex.select().from("pokemon")
+        .orderBy('description', 'asc')
+        .then(pokemon => {
             console.log(`Successfully retrieved ${pokemon.length} pokemon from database`);
             res.render("displayPokemon", {
-                pokemon: pokemon,
-                searchTerm: searchTerm || ''
+                pokemon: pokemon
             });
         })
         .catch((err) => {
             console.error("Database query error:", err.message);
             res.render("displayPokemon", {
                 pokemon: [],
-                searchTerm: searchTerm || '',
                 error_message: `Database error: ${err.message}. Please check if the 'pokemon' table exists.`
+            });
+        });
+});
+
+// Search pokemon route - finds specific pokemon and shows name and base_total
+app.post("/searchPokemon", (req, res) => {
+    const pokemonName = req.body.pokemonName;
+
+    knex.select('description', 'base_total')
+        .from("pokemon")
+        .where('description', 'ilike', `%${pokemonName}%`)
+        .first()
+        .then(pokemon => {
+            res.render("searchResult", {
+                pokemon: pokemon,
+                searchTerm: pokemonName
+            });
+        })
+        .catch((err) => {
+            console.error("Database query error:", err.message);
+            res.render("searchResult", {
+                pokemon: null,
+                searchTerm: pokemonName,
+                error_message: `Database error: ${err.message}`
             });
         });
 });
