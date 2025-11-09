@@ -62,14 +62,14 @@ app.post("/searchPokemon", (req, res) => {
         .where('description', 'ilike', `%${pokemonName}%`)
         .first()
         .then(pokemon => {
-            res.render("searchResult", {
+            res.render("searchPokemon", {
                 pokemon: pokemon,
                 searchTerm: pokemonName
             });
         })
         .catch((err) => {
             console.error("Database query error:", err.message);
-            res.render("searchResult", {
+            res.render("searchPokemon", {
                 pokemon: null,
                 searchTerm: pokemonName,
                 error_message: `Database error: ${err.message}`
