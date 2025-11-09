@@ -54,7 +54,7 @@ app.get("/", (req, res) => {
 });
 
 // Search pokemon route - finds specific pokemon and shows name and base_total
-app.post("/searchPokemon", (req, res) => {
+app.post("/searchpokemon", (req, res) => {
     const pokemonName = req.body.pokemonName;
 
     knex.select('description', 'base_total')
