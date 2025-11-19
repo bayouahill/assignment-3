@@ -60,9 +60,9 @@
                                     <% } %>
                                 </td>
                                 <td>
-                                    <a href="/editUser/<%= users[iCount].id %>" class="btn btn-primary btn-sm">Edit</a>
-                                    <form id="deleteForm<%= users[iCount].id %>" action="/deleteUser/<%= users[iCount].id %>" method="post" style="display:inline;">
-                                        <button type="button" onclick="confirmDelete('<%= users[iCount].username %>', <%= users[iCount].id %>)" class="btn btn-danger btn-sm">Delete</button>
+                                    <a href="/editUser/<%= users[iCount].user_id %>" class="btn btn-primary btn-sm">Edit</a>
+                                    <form id="deleteForm<%= users[iCount].user_id %>" action="/deleteUser/<%= users[iCount].user_id %>" method="post" style="display:inline;">
+                                        <button type="button" onclick="confirmDelete('<%= users[iCount].username %>', <%= users[iCount].user_id %>)" class="btn btn-danger btn-sm">Delete</button>
                                     </form>
                                 </td>
                             </tr>
