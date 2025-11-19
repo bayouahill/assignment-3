@@ -19,6 +19,9 @@ let bodyParser = require("body-parser");
 // Multer for handling file uploads
 const multer = require("multer");
 
+// File system module for creating directories
+const fs = require("fs");
+
 let app = express();
 
 // Use EJS for the web pages - requires a views folder and all files are .ejs
@@ -28,6 +31,21 @@ app.set("view engine", "ejs");
 const uploadRoot = path.join(__dirname, "images");
 // Sub-directory where uploaded profile pictures will be stored
 const uploadDir = path.join(uploadRoot, "uploads");
+
+// Create the directories if they don't exist
+if (!fs.existsSync(uploadRoot)) {
+    fs.mkdirSync(uploadRoot, { recursive: true });
+}
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Public folder for default images
+const publicDir = path.join(__dirname, "public");
+if (!fs.existsSync(publicDir)) {
+    fs.mkdirSync(publicDir, { recursive: true });
+}
+
 // cb is the callback function
 // The callback is how you hand control back to Multer after
 // your customization step
