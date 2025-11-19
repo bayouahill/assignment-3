@@ -71,6 +71,7 @@
                     <thead>
                         <tr>
                             <th>id</th>
+                            <th>Image</th>
                             <th>description</th>
                             <th>base_total</th>
                         </tr>
@@ -79,6 +80,12 @@
                         <% for (let iCount = 0; iCount < pokemon.length; iCount++) { %>
                             <tr>
                                 <td><%= pokemon[iCount].id %></td>
+                                <td>
+                                    <img src="/public/images/<%= pokemon[iCount].id %>.png"
+                                         alt="<%= pokemon[iCount].description %>"
+                                         style="max-width: 80px; height: auto;"
+                                         onerror="this.src='/public/images/<%= pokemon[iCount].id %>.jpg'">
+                                </td>
                                 <td><%= pokemon[iCount].description %></td>
                                 <td><%= pokemon[iCount].base_total %></td>
                             </tr>

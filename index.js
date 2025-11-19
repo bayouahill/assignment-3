@@ -50,6 +50,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 // Expose everything in /images (including uploads) as static assets
 app.use("/images", express.static(uploadRoot));
+// Serve static files from public folder (for Pokemon images and default profile pictures)
+app.use("/public", express.static(path.join(__dirname, "public")));
 
 // process.env.PORT is when you deploy and 3000 is for test
 const port = process.env.PORT || 3000;
@@ -366,7 +368,7 @@ app.post("/deleteUser/:id", (req, res) => {
 app.post("/searchPokemon", (req, res) => {
     const pokemonName = req.body.pokemonName;
 
-    knex.select('description', 'base_total')
+    knex.select('id', 'description', 'base_total')
         .from("pokemon")
         .where('description', 'ilike', `%${pokemonName}%`)
         .first()
