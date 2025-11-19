@@ -59,7 +59,7 @@
                         <img src="/public/images/<%= pokemon.id %>.png"
                              alt="<%= pokemon.description %>"
                              style="max-width: 200px; height: auto;"
-                             onerror="this.src='/public/images/<%= pokemon.id %>.jpg'">
+                             onerror="if (this.src.includes('.png')) { this.src='/public/images/<%= pokemon.id %>.jpg'; } else { this.style.display='none'; }">
                     </div>
                     <div class="result-label">Pokemon Name:</div>
                     <div class="result-value"><%= pokemon.description %></div>
