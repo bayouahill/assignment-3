@@ -87,8 +87,8 @@ const knex = require("knex")({
         host : process.env.DB_HOST || "localhost",
         user : process.env.DB_USER || "postgres",
         password : process.env.DB_PASSWORD || "admin",
-        database : process.env.DB_NAME || "assignment 3",
-        port : process.env.DB_PORT || 5432  
+        database : process.env.DB_NAME || "foodisus",
+        port : process.env.DB_PORT || 5432  // PostgreSQL 16 typically uses port 5434
     }
 });
 
@@ -153,25 +153,6 @@ app.get("/users", (req, res) => {
     else {
         res.render("login", { error_message: "" });
     }
-});
-
-// Main page route - displays all pokemon ordered by name
-app.get("/", (req, res) => {
-    knex.select().from("pokemon")
-        .orderBy('description', 'asc')
-        .then(pokemon => {
-            console.log(`Successfully retrieved ${pokemon.length} pokemon from database`);
-            res.render("displayPokemon", {
-                pokemon: pokemon
-            });
-        })
-        .catch((err) => {
-            console.error("Database query error:", err.message);
-            res.render("displayPokemon", {
-                pokemon: [],
-                error_message: `Database error: ${err.message}. Please check if the 'pokemon' table exists.`
-            });
-        });
 });
 
 // This creates attributes in the session object to keep track of user and if they logged in
@@ -353,34 +334,6 @@ app.post("/deleteUser/:id", (req, res) => {
         console.log(err);
         res.status(500).json({err});
     })
-});
-
-app.listen(port, () => {
-    console.log("The server is listening");
-});
-
-// Search pokemon route - finds specific pokemon and shows name and base_total
-app.post("/searchPokemon", (req, res) => {
-    const pokemonName = req.body.pokemonName;
-
-    knex.select('description', 'base_total')
-        .from("pokemon")
-        .where('description', 'ilike', `%${pokemonName}%`)
-        .first()
-        .then(pokemon => {
-            res.render("searchPokemon", {
-                pokemon: pokemon,
-                searchTerm: pokemonName
-            });
-        })
-        .catch((err) => {
-            console.error("Database query error:", err.message);
-            res.render("searchPokemon", {
-                pokemon: null,
-                searchTerm: pokemonName,
-                error_message: `Database error: ${err.message}`
-            });
-        });
 });
 
 app.listen(port, () => {
