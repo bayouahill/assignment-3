@@ -84,7 +84,7 @@
                                     <img src="/public/images/<%= pokemon[iCount].id %>.png"
                                          alt="<%= pokemon[iCount].description %>"
                                          style="max-width: 80px; height: auto;"
-                                         onerror="this.src='/public/images/<%= pokemon[iCount].id %>.jpg'">
+                                         onerror="if (this.src.includes('.png')) { this.src='/public/images/<%= pokemon[iCount].id %>.jpg'; } else { this.style.display='none'; }">
                                 </td>
                                 <td><%= pokemon[iCount].description %></td>
                                 <td><%= pokemon[iCount].base_total %></td>
