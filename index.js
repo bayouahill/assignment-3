@@ -368,7 +368,7 @@ app.post("/deleteUser/:id", (req, res) => {
 app.post("/searchPokemon", (req, res) => {
     const pokemonName = req.body.pokemonName;
 
-    knex.select('id', 'description', 'base_total')
+    knex.select('description', 'base_total')
         .from("pokemon")
         .where('description', 'ilike', `%${pokemonName}%`)
         .first()

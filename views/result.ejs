@@ -54,13 +54,7 @@
             <% } %>
 
             <% if (pokemon) { %>
-                <div class="result-card text-center">
-                    <div class="mb-4">
-                        <img src="/public/images/<%= pokemon.id %>.png"
-                             alt="<%= pokemon.description %>"
-                             style="max-width: 200px; height: auto;"
-                             onerror="if (this.src.includes('.png')) { this.src='/public/images/<%= pokemon.id %>.jpg'; } else { this.style.display='none'; }">
-                    </div>
+                <div class="result-card">
                     <div class="result-label">Pokemon Name:</div>
                     <div class="result-value"><%= pokemon.description %></div>
 
