@@ -166,6 +166,11 @@ app.get("/users", (req, res) => {
     knex.select().from("users")
         .then(users => {
             console.log(`Successfully retrieved ${users.length} users from database`);
+            // Debug: Log the first user to see what fields exist
+            if (users.length > 0) {
+                console.log("First user data:", users[0]);
+                console.log("User ID:", users[0].id);
+            }
             res.render("landing", {
                 users: users,
                 userLevel: req.session.userLevel || 'U' // Pass user level to view
