@@ -16,6 +16,9 @@ let path = require("path");
 // Allows you to read the body of incoming HTTP requests and makes that data available on req.body
 let bodyParser = require("body-parser");
 
+// Multer for handling file uploads
+const multer = require("multer");
+
 let app = express();
 
 // Use EJS for the web pages - requires a views folder and all files are .ejs
@@ -113,63 +116,33 @@ app.use((req, res, next) => {
     }
 });
 
-// Main page route - notice it checks if they have logged in
+// Main page route - redirects to users page (landing page)
 app.get("/", (req, res) => {
     // Check if user is logged in
-    if (req.session.isLoggedIn) {        
-        res.render("index");
-    } 
-    else {
-        res.render("login", { error_message: "" });
-    }
-});
-
-app.get("/test", (req, res) => {
-    // Check if user is logged in
     if (req.session.isLoggedIn) {
-        res.render("test", {name : "BYU"});
+        res.redirect("/users");
     }
     else {
         res.render("login", { error_message: "" });
     }
 });
 
+// Users landing page - displays all users
 app.get("/users", (req, res) => {
-    // Check if user is logged in
-    if (req.session.isLoggedIn) {
-        knex.select().from("users")
-            .then(users => {
-                console.log(`Successfully retrieved ${users.length} users from database`);
-                res.render("displayUsers", {users: users});
-            })
-            .catch((err) => {
-                console.error("Database query error:", err.message);
-                res.render("displayUsers", {
-                    users: [],
-                    error_message: `Database error: ${err.message}. Please check if the 'users' table exists.`
-                });
-            });
-    }
-    else {
-        res.render("login", { error_message: "" });
-    }
-});
-
-// Main page route - displays all pokemon ordered by name
-app.get("/", (req, res) => {
-    knex.select().from("pokemon")
-        .orderBy('description', 'asc')
-        .then(pokemon => {
-            console.log(`Successfully retrieved ${pokemon.length} pokemon from database`);
-            res.render("displayPokemon", {
-                pokemon: pokemon
+    knex.select().from("users")
+        .then(users => {
+            console.log(`Successfully retrieved ${users.length} users from database`);
+            res.render("displayUsers", {
+                users: users,
+                userLevel: req.session.userLevel || 'U' // Pass user level to view
             });
         })
         .catch((err) => {
             console.error("Database query error:", err.message);
-            res.render("displayPokemon", {
-                pokemon: [],
-                error_message: `Database error: ${err.message}. Please check if the 'pokemon' table exists.`
+            res.render("displayUsers", {
+                users: [],
+                userLevel: req.session.userLevel || 'U',
+                error_message: `Database error: ${err.message}. Please check if the 'users' table exists.`
             });
         });
 });
@@ -179,7 +152,7 @@ app.post("/login", (req, res) => {
     let sName = req.body.username;
     let sPassword = req.body.password;
 
-    knex.select("username", "password")
+    knex.select("username", "password", "level")
     .from('users')
     .where("username", sName)
     .andWhere("password", sPassword)
@@ -188,6 +161,7 @@ app.post("/login", (req, res) => {
       if (users.length > 0) {
         req.session.isLoggedIn = true;
         req.session.username = sName;
+        req.session.userLevel = users[0].level || 'U'; // Store user level (M or U)
         res.redirect("/");
       } else {
         // No matching user found
@@ -218,24 +192,23 @@ app.get("/addUser", (req, res) => {
 
 app.post("/addUser", upload.single("profileImage"), (req, res) => {
     // Destructuring grabs them regardless of field order.
-    //const username = req.body.username;
-    //const password = req.body.password;
-    const { username, password } = req.body;
+    const { username, password, level } = req.body;
     // Basic validation to ensure required fields are present.
-    if (!username || !password) {
-        return res.status(400).render("addUser", { error_message: "Username and password are required." });
+    if (!username || !password || !level) {
+        return res.status(400).render("addUser", { error_message: "Username, password, and level are required." });
+    }
+    // Validate level is either M or U
+    if (level !== 'M' && level !== 'U') {
+        return res.status(400).render("addUser", { error_message: "Level must be either Manager (M) or User (U)." });
     }
     // Build the relative path to the uploaded file so the
     // browser can load it later.
     const profileImagePath = req.file ? `/images/uploads/${req.file.filename}` : null;
     // Shape the data to match the users table schema.
-    // Object literal - other languages use dictionaries
-    // When the object is inserted with Knex, that value profileImagePath,
-    // becomes the database column profile_image, so the saved path to
-    // the uploaded image ends up in the profile_image column for that user.
     const newUser = {
         username,
         password,
+        level,
         profile_image: profileImagePath
     };
     // Insert the record into PostgreSQL and return the user list on success.
@@ -276,8 +249,8 @@ app.get("/editUser/:id", (req, res) => {
 
 app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
     const userId = req.params.id;
-    const { username, password, existingImage } = req.body;
-    if (!username || !password) {
+    const { username, password, level, existingImage } = req.body;
+    if (!username || !password || !level) {
         return knex("users")
             .where({ id: userId })
             .first()
@@ -285,19 +258,33 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
                 if (!user) {
                     return res.status(404).render("displayUsers", {
                         users: [],
+                        userLevel: req.session.userLevel || 'U',
                         error_message: "User not found."
                     });
                 }
                 res.status(400).render("editUser", {
                     user,
-                    error_message: "Username and password are required."
+                    error_message: "Username, password, and level are required."
                 });
             })
             .catch((err) => {
                 console.error("Error fetching user:", err.message);
                 res.status(500).render("displayUsers", {
                     users: [],
+                    userLevel: req.session.userLevel || 'U',
                     error_message: "Unable to load user for editing."
+                });
+            });
+    }
+    // Validate level is either M or U
+    if (level !== 'M' && level !== 'U') {
+        return knex("users")
+            .where({ id: userId })
+            .first()
+            .then((user) => {
+                res.status(400).render("editUser", {
+                    user,
+                    error_message: "Level must be either Manager (M) or User (U)."
                 });
             });
     }
@@ -305,6 +292,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
     const updatedUser = {
         username,
         password,
+        level,
         profile_image: profileImagePath
     };
     knex("users")
@@ -314,6 +302,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
             if (rowsUpdated === 0) {
                 return res.status(404).render("displayUsers", {
                     users: [],
+                    userLevel: req.session.userLevel || 'U',
                     error_message: "User not found."
                 });
             }
@@ -328,6 +317,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
                     if (!user) {
                         return res.status(404).render("displayUsers", {
                             users: [],
+                            userLevel: req.session.userLevel || 'U',
                             error_message: "User not found."
                         });
                     }
@@ -340,6 +330,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
                     console.error("Error fetching user after update failure:", fetchErr.message);
                     res.status(500).render("displayUsers", {
                         users: [],
+                        userLevel: req.session.userLevel || 'U',
                         error_message: "Unable to update user."
                     });
                 });
@@ -353,10 +344,6 @@ app.post("/deleteUser/:id", (req, res) => {
         console.log(err);
         res.status(500).json({err});
     })
-});
-
-app.listen(port, () => {
-    console.log("The server is listening");
 });
 
 // Search pokemon route - finds specific pokemon and shows name and base_total
@@ -384,5 +371,5 @@ app.post("/searchPokemon", (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log("The server is listening");
+    console.log(`Server is listening on port ${port}`);
 });
