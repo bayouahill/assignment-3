@@ -116,11 +116,25 @@ app.use((req, res, next) => {
     }
 });
 
-// Main page route - redirects to users page (landing page)
+// Main page route - displays Pokemon list (index page)
 app.get("/", (req, res) => {
     // Check if user is logged in
     if (req.session.isLoggedIn) {
-        res.redirect("/users");
+        knex.select().from("pokemon")
+            .orderBy('description', 'asc')
+            .then(pokemon => {
+                console.log(`Successfully retrieved ${pokemon.length} pokemon from database`);
+                res.render("index", {
+                    pokemon: pokemon
+                });
+            })
+            .catch((err) => {
+                console.error("Database query error:", err.message);
+                res.render("index", {
+                    pokemon: [],
+                    error_message: `Database error: ${err.message}. Please check if the 'pokemon' table exists.`
+                });
+            });
     }
     else {
         res.render("login", { error_message: "" });
@@ -132,14 +146,14 @@ app.get("/users", (req, res) => {
     knex.select().from("users")
         .then(users => {
             console.log(`Successfully retrieved ${users.length} users from database`);
-            res.render("displayUsers", {
+            res.render("landing", {
                 users: users,
                 userLevel: req.session.userLevel || 'U' // Pass user level to view
             });
         })
         .catch((err) => {
             console.error("Database query error:", err.message);
-            res.render("displayUsers", {
+            res.render("landing", {
                 users: [],
                 userLevel: req.session.userLevel || 'U',
                 error_message: `Database error: ${err.message}. Please check if the 'users' table exists.`
@@ -231,8 +245,9 @@ app.get("/editUser/:id", (req, res) => {
         .first()
         .then((user) => {
             if (!user) {
-                return res.status(404).render("displayUsers", {
+                return res.status(404).render("landing", {
                     users: [],
+                    userLevel: req.session.userLevel || 'U',
                     error_message: "User not found."
                 });
             }
@@ -240,8 +255,9 @@ app.get("/editUser/:id", (req, res) => {
         })
         .catch((err) => {
             console.error("Error fetching user:", err.message);
-            res.status(500).render("displayUsers", {
+            res.status(500).render("landing", {
                 users: [],
+                userLevel: req.session.userLevel || 'U',
                 error_message: "Unable to load user for editing."
             });
         });
@@ -256,7 +272,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
             .first()
             .then((user) => {
                 if (!user) {
-                    return res.status(404).render("displayUsers", {
+                    return res.status(404).render("landing", {
                         users: [],
                         userLevel: req.session.userLevel || 'U',
                         error_message: "User not found."
@@ -269,7 +285,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
             })
             .catch((err) => {
                 console.error("Error fetching user:", err.message);
-                res.status(500).render("displayUsers", {
+                res.status(500).render("landing", {
                     users: [],
                     userLevel: req.session.userLevel || 'U',
                     error_message: "Unable to load user for editing."
@@ -300,7 +316,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
         .update(updatedUser)
         .then((rowsUpdated) => {
             if (rowsUpdated === 0) {
-                return res.status(404).render("displayUsers", {
+                return res.status(404).render("landing", {
                     users: [],
                     userLevel: req.session.userLevel || 'U',
                     error_message: "User not found."
@@ -315,7 +331,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
                 .first()
                 .then((user) => {
                     if (!user) {
-                        return res.status(404).render("displayUsers", {
+                        return res.status(404).render("landing", {
                             users: [],
                             userLevel: req.session.userLevel || 'U',
                             error_message: "User not found."
@@ -328,7 +344,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
                 })
                 .catch((fetchErr) => {
                     console.error("Error fetching user after update failure:", fetchErr.message);
-                    res.status(500).render("displayUsers", {
+                    res.status(500).render("landing", {
                         users: [],
                         userLevel: req.session.userLevel || 'U',
                         error_message: "Unable to update user."
@@ -355,14 +371,14 @@ app.post("/searchPokemon", (req, res) => {
         .where('description', 'ilike', `%${pokemonName}%`)
         .first()
         .then(pokemon => {
-            res.render("searchPokemon", {
+            res.render("result", {
                 pokemon: pokemon,
                 searchTerm: pokemonName
             });
         })
         .catch((err) => {
             console.error("Database query error:", err.message);
-            res.render("searchPokemon", {
+            res.render("result", {
                 pokemon: null,
                 searchTerm: pokemonName,
                 error_message: `Database error: ${err.message}`
