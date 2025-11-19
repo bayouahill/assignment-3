@@ -166,11 +166,6 @@ app.get("/users", (req, res) => {
     knex.select().from("users")
         .then(users => {
             console.log(`Successfully retrieved ${users.length} users from database`);
-            // Debug: Log the first user to see what fields exist
-            if (users.length > 0) {
-                console.log("First user data:", users[0]);
-                console.log("User ID:", users[0].id);
-            }
             res.render("landing", {
                 users: users,
                 userLevel: req.session.userLevel || 'U' // Pass user level to view
@@ -266,7 +261,7 @@ app.post("/addUser", upload.single("profileImage"), (req, res) => {
 app.get("/editUser/:id", (req, res) => {
     const userId = req.params.id;
     knex("users")
-        .where({ id: userId })
+        .where({ user_id: userId })
         .first()
         .then((user) => {
             if (!user) {
@@ -293,7 +288,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
     const { username, password, level, existingImage } = req.body;
     if (!username || !password || !level) {
         return knex("users")
-            .where({ id: userId })
+            .where({ user_id: userId })
             .first()
             .then((user) => {
                 if (!user) {
@@ -320,7 +315,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
     // Validate level is either M or U
     if (level !== 'M' && level !== 'U') {
         return knex("users")
-            .where({ id: userId })
+            .where({ user_id: userId })
             .first()
             .then((user) => {
                 res.status(400).render("editUser", {
@@ -337,7 +332,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
         profile_image: profileImagePath
     };
     knex("users")
-        .where({ id: userId })
+        .where({ user_id: userId })
         .update(updatedUser)
         .then((rowsUpdated) => {
             if (rowsUpdated === 0) {
@@ -352,7 +347,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
         .catch((err) => {
             console.error("Error updating user:", err.message);
             knex("users")
-                .where({ id: userId })
+                .where({ user_id: userId })
                 .first()
                 .then((user) => {
                     if (!user) {
@@ -379,7 +374,7 @@ app.post("/editUser/:id", upload.single("profileImage"), (req, res) => {
 });
 
 app.post("/deleteUser/:id", (req, res) => {
-    knex("users").where("id", req.params.id).del().then(users => {
+    knex("users").where("user_id", req.params.id).del().then(users => {
         res.redirect("/users");
     }).catch(err => {
         console.log(err);
