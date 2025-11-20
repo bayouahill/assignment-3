@@ -136,7 +136,7 @@ app.use((req, res, next) => {
     }
 });
 
-// Main page route - displays Pokemon list (index page)
+// Main page route - displays Pokemon list (index page) after logging in
 app.get("/", (req, res) => {
     // Check if user is logged in
     if (req.session.isLoggedIn) {
